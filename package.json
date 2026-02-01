@@ -1,0 +1,16 @@
+{
+  "name": "fund-estimator",
+  "version": "1.0.0",
+  "description": "基金实时估值工具 - 基于重仓股模拟",
+  "main": "proxy-server.js",
+  "scripts": {
+    "start": "node proxy-server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "iconv-lite": "^0.7.2"
+  }
+}

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金实时估值 - 重仓股模拟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .add-fund {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #40a9ff;
+        }
+
+        .fund-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .fund-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .fund-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .fund-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .fund-code {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .fund-data {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .data-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .data-label {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .data-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #f5222d;
+        }
+
+        .negative {
+            color: #52c41a;
+        }
+
+        .summary {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .delete-btn {
+            background: #ff4d4f;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #ff7875;
+        }
+
+        .expand-btn {
+            background: #f0f0f0;
+            color: #666;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .expand-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        .update-time {
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .holdings {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+            display: none;
+        }
+
+        .holdings.show {
+            display: block;
+        }
+
+        .holdings-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .holdings-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 12px;
+            color: #999;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 5px;
+        }
+
+        .holdings-header .header-name {
+            flex: 1;
+        }
+
+        .holdings-header .header-ratio {
+            width: 80px;
+            text-align: center;
+        }
+
+        .holdings-header .header-change {
+            width: 80px;
+            text-align: right;
+        }
+
+        .holding-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 13px;
+        }
+
+        .stock-name {
+            flex: 1;
+            color: #333;
+        }
+
+        .stock-ratio {
+            color: #666;
+            width: 80px;
+            text-align: center;
+        }
+
+        .stock-change {
+            font-weight: bold;
+            width: 80px;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📈 基金实时估值（重仓股模拟）</h1>
+
+        <div class="add-fund">
+            <div class="input-group">
+                <input type="text" id="fundCode" placeholder="基金代码（如：110022）">
+                <input type="number" id="holdAmount" placeholder="持有金额（元）" step="0.01">
+                <button onclick="addFund()">添加基金</button>
+            </div>
+        </div>
+
+        <div class="summary" id="summary" style="display:none;">
+            <div class="summary-item">
+                <span>总持仓：</span>
+                <span id="totalHold">¥0.00</span>
+            </div>
+            <div class="summary-item">
+                <span>今日估算盈亏：</span>
+                <span id="totalProfit">¥0.00</span>
+            </div>
+        </div>
+
+        <div class="fund-list" id="fundList"></div>
+        <div class="update-time" id="updateTime"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
